@@ -13,6 +13,7 @@ CGFloat kAnimationDurationTime = 0.25;
 @interface ZBBProgressLayer : CAShapeLayer
 
 @property (nonatomic, assign) CGFloat progress;
+@property(nullable) CGColorRef progressColor;
 
 @end
 
@@ -49,7 +50,7 @@ CGFloat kAnimationDurationTime = 0.25;
                                                                           boundsSize.height)];
     
     
-    CGContextSetFillColorWithColor(ctx,self.fillColor);
+    CGContextSetFillColorWithColor(ctx,self.progressColor);
     CGContextAddPath(ctx, cutoutPath.CGPath);
     CGContextFillPath(ctx);
 //    NSLog(@"%@ = %@\n",[self class],self);
@@ -94,7 +95,7 @@ CGFloat kAnimationDurationTime = 0.25;
     //  从弧线结束为止绘制一条线段到圆心。这样系统会自动闭合图形，绘制一条从圆心到弧线起点的线段。
     [cutoutPath addLineToPoint:center];
     
-    CGContextSetFillColorWithColor(ctx,self.fillColor);
+    CGContextSetFillColorWithColor(ctx,self.progressColor);
     CGContextAddPath(ctx, cutoutPath.CGPath);
     CGContextFillPath(ctx);
 }
@@ -123,7 +124,7 @@ CGFloat kAnimationDurationTime = 0.25;
                                                            endAngle:endAngle
                                                           clockwise:YES];
     
-    CGContextSetStrokeColorWithColor(ctx,self.fillColor);
+    CGContextSetStrokeColorWithColor(ctx,self.progressColor);
     CGContextAddPath(ctx, cutoutPath.CGPath);
     CGContextStrokePath(ctx);
 }
@@ -171,6 +172,7 @@ CGFloat kAnimationDurationTime = 0.25;
 -(void)setMaskLayer:(ZBBProgressLayer *)maskLayer{
     if (maskLayer && _maskLayer != maskLayer) {
         _maskLayer = maskLayer;
+        _maskLayer.progressColor = [UIColor grayColor].CGColor;
         [self.layer addSublayer:maskLayer];
     }
 }
@@ -188,7 +190,7 @@ CGFloat kAnimationDurationTime = 0.25;
 
 -(void)setProgressColor:(UIColor *)progressColor{
     _progressColor = progressColor;
-    _maskLayer.fillColor = _progressColor.CGColor;
+    _maskLayer.progressColor = _progressColor.CGColor;
 }
 
 -(void)setProgress:(CGFloat)progress animated:(BOOL)animated{
