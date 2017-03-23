@@ -18,6 +18,12 @@ CGFloat kAnimationDurationTime = 0.25;
 @end
 
 @implementation ZBBProgressLayer
+/**
+ *  CALayer在运行时对这个radius自动生成了set和get方法,
+ *  并且这些存取方法有重要的逻辑,关键是不要在CALayer中实现自定义的存取方法或是使用@synthesize
+ *  @dynamic就是告诉编译器,不自动生成setter和getter方法
+ */
+@dynamic progressColor;
 
 + (BOOL)needsDisplayForKey:(NSString *)key{
     if ([key isEqualToString:@"progress"]/*progress 属性变化时，重绘*/) {
@@ -172,7 +178,6 @@ CGFloat kAnimationDurationTime = 0.25;
 -(void)setMaskLayer:(ZBBProgressLayer *)maskLayer{
     if (maskLayer && _maskLayer != maskLayer) {
         _maskLayer = maskLayer;
-        _maskLayer.progressColor = [UIColor grayColor].CGColor;
         [self.layer addSublayer:maskLayer];
     }
 }
