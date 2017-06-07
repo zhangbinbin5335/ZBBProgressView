@@ -17,9 +17,12 @@ typedef NS_ENUM (NSUInteger, ZBBProgressViewType) {
 @interface ZBBProgressView : UIView
 
 +(instancetype)zbbProgressViewWithType:(ZBBProgressViewType)type; // 不要用initWithFrame
++(instancetype)zbbProgressViewWithType:(ZBBProgressViewType)type gradient:(BOOL)gradient;//gradient:YES渐变效果
 
 @property (nonatomic, assign) CGFloat progress;
 @property (nonatomic, strong) UIColor* progressColor;
+@property (nonatomic, assign) CGFloat strokeWidth; // ZBBProgressViewTypeRect,设置无效
+@property (nonatomic, strong) NSArray *colors; // 渐变色设置了,progressColor无效
 
 - (void)setProgress:(CGFloat)progress;
 

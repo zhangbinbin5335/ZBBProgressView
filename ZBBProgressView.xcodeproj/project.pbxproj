@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		431D06A11EE68373004A6AC6 /* GradientCircleView.m in Sources */ = {isa = PBXBuildFile; fileRef = 431D06A01EE68373004A6AC6 /* GradientCircleView.m */; };
 		433AAC011E80C8FC001ABDAF /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 433AAC001E80C8FC001ABDAF /* main.m */; };
 		433AAC041E80C8FC001ABDAF /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 433AAC031E80C8FC001ABDAF /* AppDelegate.m */; };
 		433AAC071E80C8FC001ABDAF /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 433AAC061E80C8FC001ABDAF /* ViewController.m */; };
@@ -17,6 +18,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		431D069F1EE68373004A6AC6 /* GradientCircleView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GradientCircleView.h; sourceTree = "<group>"; };
+		431D06A01EE68373004A6AC6 /* GradientCircleView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GradientCircleView.m; sourceTree = "<group>"; };
 		433AABFC1E80C8FC001ABDAF /* ZBBProgressView.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ZBBProgressView.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		433AAC001E80C8FC001ABDAF /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		433AAC021E80C8FC001ABDAF /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -65,6 +68,8 @@
 				433AAC031E80C8FC001ABDAF /* AppDelegate.m */,
 				433AAC051E80C8FC001ABDAF /* ViewController.h */,
 				433AAC061E80C8FC001ABDAF /* ViewController.m */,
+				431D069F1EE68373004A6AC6 /* GradientCircleView.h */,
+				431D06A01EE68373004A6AC6 /* GradientCircleView.m */,
 				433AAC161E80C928001ABDAF /* ZBBProgressView.h */,
 				433AAC171E80C928001ABDAF /* ZBBProgressView.m */,
 				433AAC081E80C8FC001ABDAF /* Main.storyboard */,
@@ -158,6 +163,7 @@
 			files = (
 				433AAC071E80C8FC001ABDAF /* ViewController.m in Sources */,
 				433AAC041E80C8FC001ABDAF /* AppDelegate.m in Sources */,
+				431D06A11EE68373004A6AC6 /* GradientCircleView.m in Sources */,
 				433AAC181E80C928001ABDAF /* ZBBProgressView.m in Sources */,
 				433AAC011E80C8FC001ABDAF /* main.m in Sources */,
 			);
@@ -316,6 +322,7 @@
 				433AAC151E80C8FC001ABDAF /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

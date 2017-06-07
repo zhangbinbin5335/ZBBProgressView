@@ -8,6 +8,14 @@
 
 #import "ZBBProgressView.h"
 
+#define UIColorWithRGBA(rgbValue, alpha1) [UIColor \
+colorWithRed:((float)((rgbValue & 0xFF0000) >> 16))/255.0 \
+green:((float)((rgbValue & 0xFF00) >> 8))/255.0 \
+blue:((float)(rgbValue & 0xFF))/255.0 \
+alpha:alpha1]
+
+#define UIColorWithRGB(rgb) UIColorWithRGBA(rgb, 1.0)
+
 CGFloat kAnimationDurationTime = 0.25;
 
 @interface ZBBProgressLayer : CAShapeLayer
@@ -78,14 +86,15 @@ CGFloat kAnimationDurationTime = 0.25;
     
     //
     UIBezierPath *circlePath =[UIBezierPath bezierPathWithArcCenter:self.position
-                                                                radius:radius
+                                                                radius:radius - self.lineWidth
                                                             startAngle:0
                                                             endAngle:2 * M_PI
                                                             clockwise:YES];
     
     
-    CGContextSetStrokeColorWithColor(ctx,[UIColor blueColor].CGColor);
+    CGContextSetStrokeColorWithColor(ctx,self.progressColor);
     CGContextAddPath(ctx, circlePath.CGPath);
+    CGContextSetLineWidth(ctx, self.lineWidth);
     CGContextStrokePath(ctx);
     
     CGFloat startAngle = -M_PI_2; // 0为水平线
@@ -93,7 +102,7 @@ CGFloat kAnimationDurationTime = 0.25;
     CGPoint center = CGPointMake(boundsSize.width / 2., boundsSize.height / 2.);
     
     UIBezierPath *cutoutPath =[UIBezierPath bezierPathWithArcCenter:center
-                                                             radius:radius - 2
+                                                             radius:radius - 2 - self.lineWidth
                                                          startAngle:startAngle
                                                            endAngle:endAngle
                                                           clockwise:YES];
@@ -125,13 +134,13 @@ CGFloat kAnimationDurationTime = 0.25;
     CGPoint center = CGPointMake(boundsSize.width / 2., boundsSize.height / 2.);
     
     UIBezierPath *cutoutPath =[UIBezierPath bezierPathWithArcCenter:center
-                                                             radius:radius
+                                                             radius:radius - self.lineWidth
                                                          startAngle:startAngle
                                                            endAngle:endAngle
                                                           clockwise:YES];
-    
     CGContextSetStrokeColorWithColor(ctx,self.progressColor);
     CGContextAddPath(ctx, cutoutPath.CGPath);
+    CGContextSetLineWidth(ctx, self.lineWidth);
     CGContextStrokePath(ctx);
 }
 
@@ -140,6 +149,7 @@ CGFloat kAnimationDurationTime = 0.25;
 @interface ZBBProgressView ()
 
 @property (nonatomic, strong) ZBBProgressLayer* maskLayer; //
+@property (nonatomic, strong) CAGradientLayer *gradientLayer; // 渐变
 
 @end
 
@@ -147,25 +157,35 @@ CGFloat kAnimationDurationTime = 0.25;
 
 #pragma mark -- life cycle
 +(instancetype)zbbProgressViewWithType:(ZBBProgressViewType)type{
-    ZBBProgressView* progressView = [[ZBBProgressView alloc]init];
     
+    return [self zbbProgressViewWithType:type gradient:NO];
+}
+
++(instancetype)zbbProgressViewWithType:(ZBBProgressViewType)type gradient:(BOOL)gradient{
+    ZBBProgressView* progressView = [[ZBBProgressView alloc]init];
     switch (type) {
         case ZBBProgressViewTypeArc:
             progressView.maskLayer = [[ZBBArcProgressLayer alloc]init];
             break;
             
         case ZBBProgressViewTypeRect:
-        progressView.maskLayer = [[ZBBRectProgressLayer alloc]init];
-        break;
-        
+            progressView.maskLayer = [[ZBBRectProgressLayer alloc]init];
+            break;
+            
         case ZBBProgressViewTypeCircle:
-        progressView.maskLayer = [[ZBBCircleProgressLayer alloc]init];
-        break;
+            progressView.maskLayer = [[ZBBCircleProgressLayer alloc]init];
+            break;
             
         default:
             break;
     }
-    
+
+    if (gradient) {
+        [progressView.layer addSublayer:progressView.gradientLayer];
+        [progressView.layer setMask:progressView.maskLayer];
+    }else{
+        [progressView.layer addSublayer:progressView.maskLayer];
+    }
     return progressView;
 }
 
@@ -173,19 +193,30 @@ CGFloat kAnimationDurationTime = 0.25;
     
     NSLog(@"%@ dealloc",[self class]);
 }
-
-#pragma mark -- public
--(void)setMaskLayer:(ZBBProgressLayer *)maskLayer{
-    if (maskLayer && _maskLayer != maskLayer) {
-        _maskLayer = maskLayer;
-        [self.layer addSublayer:maskLayer];
-    }
-}
-
+#pragma mark -- overwrite
 -(void)setFrame:(CGRect)frame{
     [super setFrame:frame];
     if (_maskLayer) {
         _maskLayer.frame = self.layer.bounds;
+        _gradientLayer.frame = self.layer.bounds;
+    }
+}
+#pragma mark -- get&set
+-(CAGradientLayer *)gradientLayer{
+    if (!_gradientLayer) {
+        _gradientLayer = [[CAGradientLayer alloc]init];
+        _gradientLayer.colors = @[(__bridge id)UIColorWithRGB(0xF98725).CGColor,
+                                  (__bridge id)UIColorWithRGB(0xFBBC2F).CGColor];
+        _gradientLayer.startPoint = CGPointMake(0, 0);
+        _gradientLayer.endPoint = CGPointMake(0, 1); // (0,0)-->(0,1):竖直方向
+    }
+    
+    return _gradientLayer;
+}
+
+-(void)setMaskLayer:(ZBBProgressLayer *)maskLayer{
+    if (maskLayer && _maskLayer != maskLayer) {
+        _maskLayer = maskLayer;
     }
 }
 
@@ -214,6 +245,17 @@ CGFloat kAnimationDurationTime = 0.25;
         _maskLayer.progress = _progress;
         [_maskLayer performSelectorOnMainThread:@selector(setNeedsDisplay) withObject:nil waitUntilDone:YES];
     }
+}
+
+-(void)setColors:(NSArray *)colors{
+    if ([_colors isEqualToArray:colors]) {
+        return;
+    }
+    _gradientLayer.colors = colors;
+}
+
+-(void)setStrokeWidth:(CGFloat)strokeWidth{
+    _maskLayer.lineWidth = strokeWidth;
 }
 
 @end
