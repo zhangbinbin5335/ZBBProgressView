@@ -16,7 +16,7 @@ alpha:alpha1]
 
 #define UIColorWithRGB(rgb) UIColorWithRGBA(rgb, 1.0)
 
-CGFloat kAnimationDurationTime = 0.25;
+static CGFloat kAnimationDurationTime = 0.25;
 
 @interface ZBBProgressLayer : CAShapeLayer
 

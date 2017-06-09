@@ -23,12 +23,12 @@ CGFloat kRecordDruation = 15.;
     
     self.view.backgroundColor = [UIColor whiteColor];
     
-//    GradientCircleView* progressView = [[GradientCircleView alloc]initWithFrame:CGRectMake(0,
-//                                                                                           44,
-//                                                                                           100,
-//                                                                                           100)];
-    ZBBProgressView* progressView = [ZBBProgressView zbbProgressViewWithType:ZBBProgressViewTypeCircle
-                                                                    gradient:YES];
+    GradientCircleView* progressView = [[GradientCircleView alloc]initWithFrame:CGRectMake(0,
+                                                                                           44,
+                                                                                           100,
+                                                                                           100)];
+//    ZBBProgressView* progressView = [ZBBProgressView zbbProgressViewWithType:ZBBProgressViewTypeCircle
+//                                                                    gradient:YES];
 //    ZBBProgressView* progressView = [ZBBProgressView zbbProgressViewWithType:ZBBProgressViewTypeRect];
     
     progressView.frame = CGRectMake(0,
@@ -36,10 +36,10 @@ CGFloat kRecordDruation = 15.;
                                     100,
                                     100);
     [self.view addSubview:progressView];
-    [progressView setProgress:0.2];
+    [progressView setProgress:0.8 animated:YES];
     progressView.tag = 1001;
 //    progressView.backgroundColor = [UIColor whiteColor];
-    progressView.progressColor = [UIColor redColor];
+//    progressView.progressColor = [UIColor redColor];
     progressView.strokeWidth = 5;
     
     [NSTimer scheduledTimerWithTimeInterval:5
@@ -61,8 +61,8 @@ CGFloat kRecordDruation = 15.;
 }
 
 -(void)progress:(NSTimer*)timer{
-    ZBBProgressView* progressView = [self.view viewWithTag:1001];
-    [progressView setProgress:0.6 animated:NO];
+    GradientCircleView* progressView = [self.view viewWithTag:1001];
+    [progressView setProgress:0.2 animated:YES];
     return;
 //    ZBBProgressView* progressView = [self.view viewWithTag:1001];
     

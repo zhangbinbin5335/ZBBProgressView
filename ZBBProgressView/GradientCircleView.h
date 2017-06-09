@@ -23,5 +23,6 @@ alpha:alpha1]
 @property (nonatomic, strong) NSArray *colors; // 渐变色
 
 - (void)setProgress:(CGFloat)progress;
+- (void)setProgress:(CGFloat)progress animated:(BOOL)animated;
 
 @end

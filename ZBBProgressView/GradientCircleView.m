@@ -8,15 +8,61 @@
 
 #import "GradientCircleView.h"
 
+static CGFloat kAnimationDurationTime = 0.25;
+
+@interface CircleProgressLayer : CAShapeLayer
+
+@property (nonatomic, assign) CGFloat progress;
+@property (nonatomic, strong) UIColor *progressColor;
+
+@end
+
+@implementation CircleProgressLayer
+@dynamic progressColor;
+
++ (BOOL)needsDisplayForKey:(NSString *)key{
+    if ([key isEqualToString:@"progress"]/*progress 属性变化时，重绘*/) {
+        return YES;
+    }
+    return [super needsDisplayForKey:key];
+}
+
+-(void)dealloc{
+    [self removeAllAnimations];
+}
+
+-(void)drawInContext:(CGContextRef)ctx{
+    
+    CGSize boundsSize = self.bounds.size;
+    CGFloat radius = MIN(boundsSize.width/2., boundsSize.height/2.);
+    
+    CGFloat startAngle = -M_PI_2; // 0为水平线
+    CGFloat endAngle = 2 * M_PI * self.progress + startAngle;
+    CGPoint center = CGPointMake(boundsSize.width / 2., boundsSize.height / 2.);
+    
+    UIBezierPath *cutoutPath =[UIBezierPath bezierPathWithArcCenter:center
+                                                             radius:radius - self.lineWidth
+                                                         startAngle:startAngle
+                                                           endAngle:endAngle
+                                                          clockwise:YES];
+    CGContextSetStrokeColorWithColor(ctx,self.progressColor.CGColor);
+    CGContextAddPath(ctx, cutoutPath.CGPath);
+    CGContextSetLineWidth(ctx, self.lineWidth);
+    CGContextStrokePath(ctx);
+}
+
+@end
+
 @interface GradientCircleView ()
 
-@property (nonatomic, strong) CAShapeLayer *circleLayer;
+@property (nonatomic, strong) CircleProgressLayer *circleLayer;
 @property (nonatomic, strong) CAGradientLayer *gradientLayer; // 渐变
-@property (nonatomic, strong) CAShapeLayer *backgroundLayer;
+@property (nonatomic, strong) CircleProgressLayer *backgroundLayer;
 
 @end
 
 @implementation GradientCircleView
+@synthesize progress = _progress;
 
 -(instancetype)initWithFrame:(CGRect)frame{
     if (self = [super initWithFrame:frame]) {
@@ -34,40 +80,27 @@
 
 -(void)layoutSubviews{
     [super layoutSubviews];
-    CGRect frame = self.frame;
+    CGRect bounds = self.bounds;
     
-    CGPoint arcCenter = CGPointMake(CGRectGetMidX(self.bounds),
-                                    CGRectGetMidY(self.bounds));
-    CGFloat radius = MIN(frame.size.width / 2., frame.size.height / 2.) - self.strokeWidth;
-    
-    UIBezierPath * path = [UIBezierPath bezierPathWithArcCenter:arcCenter
-                                                         radius:radius
-                                                     startAngle:-M_PI_2 // 0为水平线
-                                                       endAngle:-M_PI_2 + M_PI * 2
-                                                      clockwise:YES];
-    self.circleLayer.path = path.CGPath;
+    self.circleLayer.frame = bounds;
     self.circleLayer.lineWidth = self.strokeWidth;
-    self.backgroundLayer.path = path.CGPath;
+    
+    self.backgroundLayer.frame = bounds;
     self.backgroundLayer.lineWidth = self.strokeWidth;
-    self.gradientLayer.frame = CGRectMake(0, 0, frame.size.width, frame.size.height);
+    self.backgroundLayer.progress = 1;
+    [self.backgroundLayer setNeedsDisplay];
+    
+    self.gradientLayer.frame = bounds;
 }
 #pragma mark -- public
--(void)setProgress:(CGFloat)progress{
-    if (progress >= 1.0) {
-        progress = 1.0;
-    }
-    self.circleLayer.strokeEnd = progress;
-}
 #pragma mark -- priviate
 
 #pragma mark -- get&set
--(CAShapeLayer *)circleLayer{
+-(CircleProgressLayer *)circleLayer{
     if (!_circleLayer) {
-        _circleLayer = [[CAShapeLayer alloc] init];
+        _circleLayer = [[CircleProgressLayer alloc] init];
         _circleLayer.strokeColor = [UIColor blueColor].CGColor;
         _circleLayer.fillColor = [UIColor clearColor].CGColor;
-        _circleLayer.lineWidth = 5;
-        _circleLayer.strokeEnd = 0;
         _circleLayer.lineCap = kCALineCapRound;
         
     }
@@ -85,20 +118,38 @@
     
     return _gradientLayer;
 }
--(CAShapeLayer *)backgroundLayer{
+-(CircleProgressLayer *)backgroundLayer{
     if (!_backgroundLayer) {
-        _backgroundLayer = [[CAShapeLayer alloc] init];
-        _backgroundLayer.strokeColor = UIColorWithRGBA(0xFBA72C, 0.1).CGColor;
-        _backgroundLayer.fillColor = [UIColor clearColor].CGColor;
-        _backgroundLayer.lineWidth = 5;
+        _backgroundLayer = [[CircleProgressLayer alloc] init];
+        _backgroundLayer.progressColor = UIColorWithRGBA(0xFBA72C, 0.1);
     }
     
     return _backgroundLayer;
 }
 
 //
--(CGFloat)progress{
-    return self.circleLayer.strokeEnd;
+-(void)setProgress:(CGFloat)progress{
+    [self setProgress:progress animated:YES];
+}
+
+-(void)setProgress:(CGFloat)progress animated:(BOOL)animated{
+    
+    _progress = MIN(progress, 1);
+    if (animated) {
+        CABasicAnimation* animation = [CABasicAnimation animationWithKeyPath:@"progress"];
+        
+        animation.duration = kAnimationDurationTime;
+        animation.fromValue = @(_circleLayer.progress);
+        animation.toValue = @(_progress);
+        
+        [_circleLayer addAnimation:animation forKey:@"progress"];
+        _circleLayer.progress = _progress;
+    }else{
+        _circleLayer.progress = _progress;
+        [_circleLayer performSelectorOnMainThread:@selector(setNeedsDisplay)
+                                           withObject:nil
+                                        waitUntilDone:YES];
+    }
 }
 -(void)setColors:(NSArray *)colors{
     if ([_colors isEqualToArray:colors]) {
